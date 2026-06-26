@@ -1,0 +1,12 @@
+build/
+cmake-build-*/
+
+libs/
+
+.DS_Store
+
+.idea/
+
+Builds/
+JuceLibraryCode/
+*.jucer
