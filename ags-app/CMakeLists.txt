@@ -26,10 +26,12 @@ target_compile_features(ags-app PUBLIC cxx_std_17)
 target_link_libraries(ags-app
     PRIVATE
         spiral-dsp
+        ags-manifold
         juce::juce_audio_utils
         juce::juce_dsp
         juce::juce_opengl
     PUBLIC
         juce::juce_recommended_config_flags
+        juce::juce_recommended_lto_flags
         juce::juce_recommended_warning_flags
 )

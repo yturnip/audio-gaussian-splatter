@@ -2,11 +2,12 @@ cmake_minimum_required(VERSION 3.22)
 
 project(AudioGaussianSplatter
     VERSION 0.1.0
-    LANGUAGES CXX
+    LANGUAGES C CXX
 )
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 if (PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
     message(FATAL_ERROR
@@ -16,6 +17,9 @@ if (PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
 endif ()
 
 include(cmake/FetchJUCE.cmake)
+include(cmake/FetchDependencies.cmake)
+
+include(CTest)
 
 add_subdirectory(spiral-dsp)
 add_subdirectory(ags-manifold)
