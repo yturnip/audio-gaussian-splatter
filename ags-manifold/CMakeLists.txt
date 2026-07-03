@@ -1,4 +1,13 @@
-add_library(ags-manifold INTERFACE)
+add_library(ags-manifold INTERFACE
+        include/ags/manifold/GaussianSplat.h
+        include/ags/manifold/GaussianManifold.h
+        include/ags/manifold/Generators/GeneratorConfig.h
+        include/ags/manifold/Generators/SphereBranchingGenerator.h
+        include/ags/manifold/Generators/DomeBranchingGenerator.h
+        src/GaussianManifold.cpp
+        src/Generators/SphereBranchingGenerator.cpp
+        src/Generators/DomeBranchingGenerator.cpp
+)
 
 target_include_directories(ags-manifold
         INTERFACE
@@ -8,4 +17,5 @@ target_include_directories(ags-manifold
 target_link_libraries(ags-manifold
         INTERFACE
         glm::glm
+        juce::juce_core
 )
