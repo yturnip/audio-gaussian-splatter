@@ -1,4 +1,4 @@
-add_library(ags-manifold INTERFACE
+add_library(ags-manifold STATIC
         include/ags/manifold/GaussianSplat.h
         include/ags/manifold/GaussianManifold.h
         include/ags/manifold/Generators/GeneratorConfig.h
@@ -10,12 +10,12 @@ add_library(ags-manifold INTERFACE
 )
 
 target_include_directories(ags-manifold
-        INTERFACE
+        PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 target_link_libraries(ags-manifold
-        INTERFACE
+        PUBLIC
         glm::glm
         juce::juce_core
 )

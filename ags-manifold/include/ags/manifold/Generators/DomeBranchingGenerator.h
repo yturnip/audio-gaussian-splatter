@@ -7,8 +7,6 @@
 #include "GeneratorConfig.h"
 #include "ags/manifold/GaussianManifold.h"
 
-#endif //AUDIOGAUSSIANSPLATTER_DOMEBRANCHINGGENERATOR_H
-
 namespace ags::manifold
 {
     class DomeBranchingGenerator
@@ -17,3 +15,5 @@ namespace ags::manifold
         [[nodiscard]] GaussianManifold generate(const GeneratorConfig& config) const;
     };
 }
+
+#endif //AUDIOGAUSSIANSPLATTER_DOMEBRANCHINGGENERATOR_H
