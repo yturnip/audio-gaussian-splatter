@@ -6,8 +6,6 @@
 #define AUDIOGAUSSIANSPLATTER_GENERATORCONFIG_H
 #include <atomic>
 
-#endif //AUDIOGAUSSIANSPLATTER_GENERATORCONFIG_H
-
 namespace ags::manifold
 {
     struct GeneratorConfig
@@ -18,3 +16,5 @@ namespace ags::manifold
         std::uint32_t seed { 0 };
     };
 }
+
+#endif //AUDIOGAUSSIANSPLATTER_GENERATORCONFIG_H

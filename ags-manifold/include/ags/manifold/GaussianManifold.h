@@ -5,8 +5,6 @@
 #ifndef AUDIOGAUSSIANSPLATTER_GAUSSIANMANIFOLD_H
 #define AUDIOGAUSSIANSPLATTER_GAUSSIANMANIFOLD_H
 
-#endif //AUDIOGAUSSIANSPLATTER_GAUSSIANMANIFOLD_H
-
 #pragma once
 #include <vector>
 #include <cstddef>
@@ -37,3 +35,5 @@ namespace ags::manifold
         Container splats_;
     };
 }
+
+#endif //AUDIOGAUSSIANSPLATTER_GAUSSIANMANIFOLD_H

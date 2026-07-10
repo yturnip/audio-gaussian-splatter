@@ -6,7 +6,7 @@
 #include <glm/geometric.hpp>
 #include <random>
 #include <cmath>
-#include <juce_core/maths/juce_MathsFunctions.h>
+#include <juce_core/juce_core.h>
 
 namespace ags::manifold
 {
