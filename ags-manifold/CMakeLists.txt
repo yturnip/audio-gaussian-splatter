@@ -7,6 +7,8 @@ add_library(ags-manifold STATIC
         src/GaussianManifold.cpp
         src/Generators/SphereBranchingGenerator.cpp
         src/Generators/DomeBranchingGenerator.cpp
+        include/ags/manifold/ManifoldRotator.h
+        src/ManifoldRotator.cpp
 )
 
 target_include_directories(ags-manifold
