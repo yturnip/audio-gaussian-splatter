@@ -29,4 +29,10 @@ add_subdirectory(ags-app)
 
 if (BUILD_TESTS)
     add_subdirectory(tests)
-endif ()    
+endif ()
+
+option(BUILD_TOOLS "Build developer preview tools" ON)
+
+if (BUILD_TOOLS)
+    add_subdirectory(tools/ManifoldPreview)
+endif ()
