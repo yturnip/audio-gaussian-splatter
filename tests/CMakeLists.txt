@@ -3,6 +3,7 @@ add_executable(ags-manifold-tests
         src/GeneratorTests.cpp
         src/ManifoldRotatorTests.cpp
         src/EffectParameterTests.cpp
+        src/ParameterMapperTests.cpp
 )
 
 target_link_libraries(ags-manifold-tests
