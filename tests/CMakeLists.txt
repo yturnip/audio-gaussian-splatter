@@ -2,11 +2,13 @@ add_executable(ags-manifold-tests
         src/TestRunner.cpp
         src/GeneratorTests.cpp
         src/ManifoldRotatorTests.cpp
+        src/EffectParameterTests.cpp
 )
 
 target_link_libraries(ags-manifold-tests
     PRIVATE
         ags-manifold
+        ags-params
         juce::juce_core
 )
 
