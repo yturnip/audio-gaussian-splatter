@@ -46,4 +46,15 @@ namespace ags::params
 
         parameter.setGMMDrivenValue(normalized);
     }
+
+    void ParameterMapper::applyToMany(const std::vector<EffectParameter*> &parameters,
+                                        const GMMBinding &binding,
+                                        const ags::manifold::GaussianSplat &splat) const
+    {
+        for (auto* parameter : parameters)
+        {
+            if (parameter != nullptr)
+                apply(*parameter, binding, splat);
+        }
+    }
 }

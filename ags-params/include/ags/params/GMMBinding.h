@@ -11,8 +11,8 @@ namespace ags::params
     {
         None,
         Density,
-        Eccentricity,
         ShColor,
+        Eccentricity,
         Curvature
     };
 

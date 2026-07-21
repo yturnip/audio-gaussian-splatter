@@ -4,6 +4,7 @@ add_library(ags-params STATIC
         include/ags/params/GMMBinding.h
         include/ags/params/ParameterMapper.h
         src/ParameterMapper.cpp
+        include/ags/params/SplatOcclusion.h
 )
 
 target_include_directories(ags-params

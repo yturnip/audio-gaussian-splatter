@@ -92,6 +92,23 @@ public:
 
             expectWithinAbsoluteError(gain.getValue(), 1.0f, 1.0e-6f);
         }
+
+        beginTest("applyToMany routes one binding to multiple parameters");
+        {
+            EffectParameter freezeRate(0.0f, 1.0f, 0.5f);
+            EffectParameter combDecay(0.0f, 1.0f, 0.5f);
+            ags::manifold::GaussianSplat splat;
+            splat.density = 0.8f;
+
+            GMMBinding binding;
+            binding.attribute = GMMAttribute::Density;
+
+            ParameterMapper mapper;
+            mapper.applyToMany({ &freezeRate, &combDecay }, binding, splat);
+
+            expectWithinAbsoluteError(freezeRate.getValue(), 0.8f, 1.0e-6f);
+            expectWithinAbsoluteError(combDecay.getValue(), 0.8f, 1.0e-6f);
+        }
     }
 };
 
