@@ -27,6 +27,7 @@ target_link_libraries(ags-app
     PRIVATE
         spiral-dsp
         ags-manifold
+        ags-engine
         juce::juce_audio_utils
         juce::juce_dsp
         juce::juce_opengl
