@@ -5,12 +5,14 @@ add_executable(ags-manifold-tests
         src/EffectParameterTests.cpp
         src/ParameterMapperTests.cpp
         src/SplatOcclusionTests.cpp
+        src/EffectChainTests.cpp
 )
 
 target_link_libraries(ags-manifold-tests
     PRIVATE
         ags-manifold
         ags-params
+        ags-engine
         juce::juce_core
 )
 

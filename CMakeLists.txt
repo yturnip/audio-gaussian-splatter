@@ -27,6 +27,7 @@ add_subdirectory(spiral-dsp)
 add_subdirectory(ags-manifold)
 add_subdirectory(ags-app)
 add_subdirectory(ags-params)
+add_subdirectory(ags-engine)
 
 if (BUILD_TESTS)
     add_subdirectory(tests)

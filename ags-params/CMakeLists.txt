@@ -16,4 +16,5 @@ target_link_libraries(ags-params
         PUBLIC
         juce::juce_core
         ags-manifold
+        spiral-dsp
 )
