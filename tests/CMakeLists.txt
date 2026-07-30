@@ -6,6 +6,7 @@ add_executable(ags-manifold-tests
         src/ParameterMapperTests.cpp
         src/SplatOcclusionTests.cpp
         src/EffectChainTests.cpp
+        src/SplatAudioProcessorTests.cpp
 )
 
 target_link_libraries(ags-manifold-tests
