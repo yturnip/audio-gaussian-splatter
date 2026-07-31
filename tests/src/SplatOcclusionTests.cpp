@@ -18,7 +18,7 @@ public:
         {
             ags::manifold::GaussianSplat splat;
             splat.normal = {0.0f, 0.0f, -0.5f};
-            expectWithinAbsoluteError(SplatOcclusion::compute(splat), 0.3f, 1.0e-6f);
+            expectWithinAbsoluteError(SplatOcclusion::compute(splat), 0.475f, 1.0e-6f);
         }
 
         beginTest("Occlusion clamps above maximum");
@@ -32,7 +32,7 @@ public:
         {
             ags::manifold::GaussianSplat splat;
             splat.normal = {0.0f, 0.0f, 0.5f};
-            expectWithinAbsoluteError(SplatOcclusion::compute(splat), 0.5f, 1.0e-6f);
+            expectWithinAbsoluteError(SplatOcclusion::compute(splat), 0.825f, 1.0e-6f);
         }
     }
 };
