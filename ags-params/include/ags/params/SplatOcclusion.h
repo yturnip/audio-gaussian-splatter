@@ -16,7 +16,9 @@ namespace ags::params
                                             float maxOcclusion = 1.0f)
         {
             const float nz = rotatedSplat.normal.z;
-            return nz < minOcclusion ? minOcclusion : nz > maxOcclusion ? maxOcclusion : nz;
+            const float remmaped = (nz + 1.0f) * 0.5f;
+            const float scaled = minOcclusion + remmaped * (maxOcclusion - minOcclusion);
+            return std::clamp(scaled, minOcclusion, maxOcclusion);
         }
     };
 }
