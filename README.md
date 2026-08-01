@@ -1,10 +1,10 @@
 # Audio Gaussian Splatter (AGS)
 
-Audio Gaussian Splatter is a JUCE-based C++ application that generates a 3D Gaussian manifold - a
-procedurally distributed cloud of "audio splats" — and uses each splat's geometric attributes to
-drive real-time DSP effects. It is a C++ implementation of the Spherical Fibonacci Gaussian
-Mixture (SF-GM) framework described in the accompanying research, adapting 3D Gaussian
-Splatting as a control structure for spectral processing rather than for visual rendering
+Audio Gaussian Splatter is a JUCE-based C++ application that generates a 3D Gaussian manifold 
+and uses each splat's geometric attributes to drive real-time DSP effects. 
+It is a C++ implementation of the Spherical Fibonacci Gaussian Mixture (SF-GM) framework 
+described in the accompanying research, adapting 3D Gaussian Splatting as a 
+control structure for spectral processing rather than for visual rendering
 
 ## Concept
 
