@@ -15,6 +15,9 @@ namespace ags::params
                                             float minOcclusion = 0.3f,
                                             float maxOcclusion = 1.0f)
         {
+            // Dynamic Occlusion
+            // Dot product between rotated normal and listener (at 0,0,1)
+            // High alignment = 1.0 (bright), misaligned = lower (dull)
             const float nz = rotatedSplat.normal.z;
             const float remmaped = (nz + 1.0f) * 0.5f;
             const float scaled = minOcclusion + remmaped * (maxOcclusion - minOcclusion);
