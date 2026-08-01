@@ -1,6 +1,6 @@
 # Audio Gaussian Splatter (AGS)
 
-Audio Gaussian Splatter is a JUCE-based C++ application that generates a 3D Gaussian manifold — a
+Audio Gaussian Splatter is a JUCE-based C++ application that generates a 3D Gaussian manifold - a
 procedurally distributed cloud of "audio splats" — and uses each splat's geometric attributes to
 drive real-time DSP effects. It is a C++ implementation of the Spherical Fibonacci Gaussian
 Mixture (SF-GM) framework described in the accompanying research, adapting 3D Gaussian
@@ -28,12 +28,12 @@ The project is organized into three conceptual layers, matching the CMake target
 ### Data flow
 
 1. **Generator** (`SphereBranchingGenerator` / `DomeBranchingGenerator`) produces a `GaussianManifold`
-   containing many `GaussianSplat`s, each with position, density, eccentricity, `shColor`,
+   containing many `GaussianSplat`s, each with position, density, eccentricity, shColor,
    curvature, and normal.
 2. **`ManifoldRotator`** applies a rigid rotation to the entire manifold — both positions and
    normals — used for interactive rotation and, before any occlusion calculation, to keep each
    splat's facing direction accurate relative to the fixed listener convention.
-3. **`GMMBinding`** declares which splat attribute (density, `shColor`, eccentricity, curvature,
+3. **`GMMBinding`** declares which splat attribute (density, shColor, eccentricity, curvature,
    or none) drives a given parameter, with an optional invert flag.
 4. **`ParameterMapper`** reads the bound attribute, normalizes it, and scales it into the target
    `EffectParameter`'s own range, respecting manual vs. GMM-driven modes.
@@ -41,36 +41,9 @@ The project is organized into three conceptual layers, matching the CMake target
    supporting add/remove/reorder/bypass per slot.
 6. **`SplatAudioProcessor`** is the per-splat glue object: it owns one `EffectChain`, pulls a
    parameter snapshot from `ParameterMapper` each block, applies it to the chain, processes the
-   incoming audio sample, and scales the result by `SplatOcclusion`'s normal-driven gain. [file:88]
+   incoming audio sample, and scales the result by `SplatOcclusion`'s normal-driven gain.
 7. **`AudioEngine`** *(WIP)* will own many `SplatAudioProcessor`s and mix their outputs into the
-   final mono/stereo output bus.
-
-### Listener convention (current phase)
-
-Occlusion currently assumes a fixed, non-movable listener oriented along `(0, 0, 1)`; the
-`normal.z` component of a rotated splat is used as a simplified dot product against that fixed
-direction. This matches the reference SuperCollider implementation's convention and is
-intentional for this phase — full listener generalization (movable/multi-listener, explicit dot
-product against an arbitrary direction) is deferred to the spatialization phase below. [file:88][file:89]
-
-## Project phases
-
-- **Phase 0 — Foundation:** CMake multi-target skeleton, `spiral-dsp`/`ags-manifold`/`ags-app`/tests
-  targets, glm dependency. ✅
-- **Phase 1 — Data Model & Manifold Generator:** C++ port of the branching-cluster generators,
-  `GaussianSplat`/`GaussianManifold`, `ManifoldRotator`, OpenGL preview. ✅
-- **Phase 2 — Parameter Mapping System:** `EffectParameter`, `GMMBinding`, `ParameterMapper`. ✅
-- **Phase 3 — Audio Engine & Effects Chain (mono/stereo first):** `EffectChain`, `EffectProcessor`,
-  Spiral DSP wrappers, `SplatAudioProcessor`, `SplatOcclusion` (fixed-listener convention).
-  `AudioEngine` in progress. 🚧
-- **Phase 4 — 3D Visualization:** OpenGL manifold renderer, interactive drag-to-rotate.
-- **Phase 5 — Effects Chain GUI:** Effect chain panel, parameter editor, GMM binding selector.
-- **Phase 6 — Spatialization:** Movable/generalized listener direction, VBAP/ambisonic encoding,
-  consuming `GaussianSplat::position` in the actual audio path for the first time.
-
-Phase 3 deliberately proves the core density/eccentricity/curvature-driven signal chain end-to-end
-using the simplest possible mono/stereo output, before introducing the added complexity of a
-movable listener or full 3D spatial rendering in Phase 6. [file:82 conversational context]
+   multichannel output bus.
 
 ## Building
 
@@ -98,7 +71,7 @@ cmake --build build --target ags-manifold-tests
 This implementation is based on the *Spectral Manifold Splatting* research, which proposes
 adapting 3D Gaussian Splatting as a high-dimensional control structure for spectral processing,
 evaluated through a within-subjects listening study measuring Spectral Morphological Integrity,
-Spatial Envelopment, and Texture Engulfment. [file:94]
+Spatial Envelopment, and Texture Engulfment.
 
 ## References
 
