@@ -19,6 +19,11 @@ target_sources(ags-app
         src/PluginProcessor.cpp
         src/PluginEditor.h
         src/PluginEditor.cpp
+        src/gui/ManifoldRenderer.h
+        src/gui/ManifoldRenderer.cpp
+        src/gui/ManifoldViewport.h
+        src/gui/RotationPad.h
+        src/gui/RotationPad.cpp
 )
 
 target_compile_features(ags-app PUBLIC cxx_std_17)
