@@ -6,6 +6,7 @@
 #include "ags/manifold/Generators/SphereBranchingGenerator.h"
 #include "ags/manifold/Generators/DomeBranchingGenerator.h"
 #include "ags/manifold/Generators/GeneratorConfig.h"
+#include "ags/engine/AudioEngine.h"
 
 class AgsAudioProcessor : public juce::AudioProcessor
 {
@@ -20,10 +21,10 @@ public:
     juce::AudioProcessorEditor* createEditor() override;
     bool hasEditor() const override { return true; }
 
-    const juce::String getName() const override { return "AGS"; }
+    const juce::String getName() const override { return "Audio Gaussian Splatter"; }
+
     bool acceptsMidi() const override { return false; }
     bool producesMidi() const override { return false; }
-    double getTailLengthSeconds() const override { return 0.0; }
 
     int getNumPrograms() override { return 1; }
     int getCurrentProgram() override { return 0; }
@@ -55,6 +56,7 @@ public:
 
 private:
     ags::manifold::GaussianManifold manifold;
+    ags::engine::AudioEngine audioEngine;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AgsAudioProcessor)
 };
