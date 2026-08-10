@@ -1,5 +1,11 @@
 #pragma once
+
 #include <juce_audio_processors/juce_audio_processors.h>
+#include "ags/manifold/GaussianManifold.h"
+#include "ags/manifold/ManifoldRotator.h"
+#include "ags/manifold/Generators/SphereBranchingGenerator.h"
+#include "ags/manifold/Generators/DomeBranchingGenerator.h"
+#include "ags/manifold/Generators/GeneratorConfig.h"
 
 class AgsAudioProcessor : public juce::AudioProcessor
 {
@@ -7,9 +13,9 @@ public:
     AgsAudioProcessor();
     ~AgsAudioProcessor() override = default;
 
-    void prepareToPlay (double, int) override {}
-    void releaseResources() override {}
-    void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override {}
+    void prepareToPlay(double, int) override;
+    void releaseResources() override;
+    void processBlock(juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
 
     juce::AudioProcessorEditor* createEditor() override;
     bool hasEditor() const override { return true; }
@@ -21,15 +27,34 @@ public:
 
     int getNumPrograms() override { return 1; }
     int getCurrentProgram() override { return 0; }
-    void setCurrentProgram (int) override {}
-    const juce::String getProgramName (int) override { return {}; }
-    void changeProgramName (int, const juce::String&) override {}
+    void setCurrentProgram(int) override {}
+    const juce::String getProgramName(int) override { return {}; }
+    void changeProgramName(int, const juce::String&) override {}
 
-    void getStateInformation (juce::MemoryBlock&) override {}
-    void setStateInformation (const void*, int) override {}
+    void getStateInformation(juce::MemoryBlock&) override {}
+    void setStateInformation(const void*, int) override {}
 
-    bool isBusesLayoutSupported (const BusesLayout& layouts) const override
+    bool isBusesLayoutSupported(const BusesLayout& layouts) const override
     {
         return layouts.getMainOutputChannelSet() == juce::AudioChannelSet::stereo();
     }
+
+    [[nodiscard]] const ags::manifold::GaussianManifold& getManifold() const { return manifold; }
+
+    [[nodiscard]] ags::manifold::GaussianManifold getRotatedManifold() const
+    {
+        ags::manifold::ManifoldRotator rotator;
+        ags::manifold::RotationAngles angles;
+        angles.yawRadians = rotationYaw->get();
+        angles.pitchRadians = rotationPitch->get();
+        return rotator.rotate(manifold, angles);
+    }
+
+    juce::AudioParameterFloat* rotationYaw { nullptr };
+    juce::AudioParameterFloat* rotationPitch { nullptr };
+
+private:
+    ags::manifold::GaussianManifold manifold;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AgsAudioProcessor)
 };
