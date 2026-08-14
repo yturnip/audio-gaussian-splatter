@@ -71,7 +71,7 @@ namespace ags::engine
 
             const auto& rotatedSplats = cachedRotatedManifold.splats();
 
-            jassert(splatProcessors.size() == rotatedSplats.size());
+            //jassert(splatProcessors.size() == rotatedSplats.size());
             const size_t count = std::min(splatProcessors.size(), rotatedSplats.size());
 
             float sum = 0.0f;

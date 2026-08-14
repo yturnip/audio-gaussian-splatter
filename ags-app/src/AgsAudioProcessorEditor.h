@@ -2,7 +2,7 @@
 
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_opengl/juce_opengl.h>
-#include "PluginProcessor.h"
+#include "AgsAudioProcessor.h"
 #include "gui/ManifoldRenderer.h"
 #include "gui/ManifoldViewport.h"
 #include "gui/RotationPad.h"

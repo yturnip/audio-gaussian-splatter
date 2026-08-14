@@ -1,8 +1,10 @@
-#include "PluginProcessor.h"
-#include "PluginEditor.h"
+#include "AgsAudioProcessor.h"
+#include "AgsAudioProcessorEditor.h"
 
 AgsAudioProcessor::AgsAudioProcessor()
-    : AudioProcessor(BusesProperties().withOutput("Output", juce::AudioChannelSet::stereo(), true))
+    : AudioProcessor(BusesProperties()
+        .withInput("Input", juce::AudioChannelSet::stereo(), true)
+        .withOutput("Output", juce::AudioChannelSet::stereo(), true))
 {
     ags::manifold::GeneratorConfig config;
     ags::manifold::SphereBranchingGenerator generator;

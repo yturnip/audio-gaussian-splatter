@@ -28,6 +28,7 @@ public:
 
     int getNumPrograms() override { return 1; }
     int getCurrentProgram() override { return 0; }
+    double getTailLengthSeconds() const override { return 0.0; }
     void setCurrentProgram(int) override {}
     const juce::String getProgramName(int) override { return {}; }
     void changeProgramName(int, const juce::String&) override {}
@@ -37,7 +38,8 @@ public:
 
     bool isBusesLayoutSupported(const BusesLayout& layouts) const override
     {
-        return layouts.getMainOutputChannelSet() == juce::AudioChannelSet::stereo();
+        return layouts.getMainOutputChannelSet() == juce::AudioChannelSet::stereo()
+        && layouts.getMainInputChannelSet() == juce::AudioChannelSet::stereo();
     }
 
     [[nodiscard]] const ags::manifold::GaussianManifold& getManifold() const { return manifold; }
