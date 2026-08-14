@@ -1,4 +1,4 @@
-#include "PluginEditor.h"
+#include "AgsAudioProcessorEditor.h"
 
 AgsAudioProcessorEditor::AgsAudioProcessorEditor(AgsAudioProcessor& p)
     : AudioProcessorEditor(&p), processorRef(p)

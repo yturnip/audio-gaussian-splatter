@@ -4,7 +4,8 @@ juce_add_plugin(ags-app
         BUNDLE_ID               "com.spirallab.ags"
         PLUGIN_MANUFACTURER_CODE "Sprl"
         PLUGIN_CODE             "Agsp"
-        FORMATS                 Standalone
+        FORMATS                 Standalone VST3
+        VST2_CATEGORY           ""
         IS_SYNTH                FALSE
         NEEDS_MIDI_INPUT        FALSE
         NEEDS_MIDI_OUTPUT       FALSE
@@ -15,10 +16,10 @@ juce_add_plugin(ags-app
 
 target_sources(ags-app
     PRIVATE
-        src/PluginProcessor.h
-        src/PluginProcessor.cpp
-        src/PluginEditor.h
-        src/PluginEditor.cpp
+        src/AgsAudioProcessor.h
+        src/AgsAudioProcessor.cpp
+        src/AgsAudioProcessorEditor.h
+        src/AgsAudioProcessorEditor.cpp
         src/gui/ManifoldRenderer.h
         src/gui/ManifoldRenderer.cpp
         src/gui/ManifoldViewport.h
@@ -27,6 +28,11 @@ target_sources(ags-app
 )
 
 target_compile_features(ags-app PUBLIC cxx_std_17)
+
+target_compile_definitions(ags-app
+        PUBLIC
+        JUCE_IGNORE_VST3_MISMATCHED_PARAMETER_ID_WARNING=1
+)
 
 target_link_libraries(ags-app
     PRIVATE
