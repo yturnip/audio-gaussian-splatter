@@ -6,6 +6,11 @@
 #include "ags/manifold/Generators/SphereBranchingGenerator.h"
 #include "ags/manifold/Generators/DomeBranchingGenerator.h"
 #include "ags/manifold/Generators/GeneratorConfig.h"
+// STEP 2 TEST: AudioEngine re-enabled. GUI/renderer still disabled
+// (see AgsAudioProcessorEditor) so this isolates AudioEngine/
+// SplatAudioProcessor as the only new variable versus the Step 1
+// baseline, which was confirmed working (audible passthrough, node
+// add/connect did not silence other nodes).
 #include "ags/engine/AudioEngine.h"
 
 class AgsAudioProcessor : public juce::AudioProcessor
@@ -25,10 +30,10 @@ public:
 
     bool acceptsMidi() const override { return false; }
     bool producesMidi() const override { return false; }
+    double getTailLengthSeconds() const override { return 0.0; }
 
     int getNumPrograms() override { return 1; }
     int getCurrentProgram() override { return 0; }
-    double getTailLengthSeconds() const override { return 0.0; }
     void setCurrentProgram(int) override {}
     const juce::String getProgramName(int) override { return {}; }
     void changeProgramName(int, const juce::String&) override {}
@@ -58,7 +63,10 @@ public:
 
 private:
     ags::manifold::GaussianManifold manifold;
+    // STEP 2 TEST: AudioEngine member re-enabled.
     ags::engine::AudioEngine audioEngine;
+
+    juce::AudioBuffer<float> perSplatBuffer;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AgsAudioProcessor)
 };

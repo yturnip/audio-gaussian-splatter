@@ -61,6 +61,15 @@ namespace ags::engine
             return wet * gain;
         }
 
+        void processBlock(float* buffer, int numSamples, const ags::manifold::GaussianSplat& rotatedSplat)
+        {
+            chain.processBlock(buffer, numSamples);
+
+            const float gain = ags::params::SplatOcclusion::compute(rotatedSplat);
+            for (int i = 0; i < numSamples; ++i)
+                buffer[i] *= gain;
+        }
+
     private:
         struct ParamSlot
         {

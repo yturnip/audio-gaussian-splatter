@@ -83,6 +83,15 @@ namespace ags::engine
 
             return sample;
         }
+
+        void processBlock(float* buffer, int numSamples)
+        {
+            for (auto& slot : slots)
+            {
+                if (!slot.bypassed)
+                    slot.processor->processBlock(buffer, numSamples);
+            }
+        }
     private:
         struct Slot
         {
