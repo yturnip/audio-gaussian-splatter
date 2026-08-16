@@ -1,5 +1,8 @@
 #include "AgsAudioProcessor.h"
 #include "AgsAudioProcessorEditor.h"
+#include "ags/engine/SpiralDelayProcessor.h"
+#include "ags/params/EffectParameter.h"
+#include "ags/params/GMMBinding.h"
 
 AgsAudioProcessor::AgsAudioProcessor()
     : AudioProcessor(BusesProperties()
@@ -14,7 +17,36 @@ AgsAudioProcessor::AgsAudioProcessor()
     // One passthrough-only SplatAudioProcessor per splat (no effects, no
     // parameter slots yet - just the built-in occlusion-gain multiply).
     for (size_t i = 0; i < manifold.size(); ++i)
-        audioEngine.addSplatProcessor(std::make_unique<ags::engine::SplatAudioProcessor>());
+    {
+        auto splatProcessor = std::make_unique<ags::engine::SplatAudioProcessor>();
+
+        const auto delayIndex = splatProcessor->addEffect(
+            std::make_unique<ags::engine::SpiralDelayProcessor>());
+
+        // paramId 0: delay time in samples. Fixed default for now.
+        splatProcessor->addParameterSlot(
+            delayIndex,
+            0,
+            std::make_unique<ags::params::EffectParameter>(1.0f, 44100.0f, 8000.0f),
+            ags::params::GMMBinding{ ags::params::GMMAttribute::None, false });
+
+        // paramId 1: feedback. Fixed default for now.
+        splatProcessor->addParameterSlot(
+            delayIndex,
+            1,
+            std::make_unique<ags::params::EffectParameter>(0.0f, 0.95f, 0.3f),
+            ags::params::GMMBinding{ ags::params::GMMAttribute::None, false });
+
+        // paramId 2: wet mix, GMM-bound to Density - this is the one
+        // parameter actually driven by manifold geometry for this pass.
+        splatProcessor->addParameterSlot(
+            delayIndex,
+            2,
+            std::make_unique<ags::params::EffectParameter>(0.0f, 1.0f, 0.0f),
+            ags::params::GMMBinding{ ags::params::GMMAttribute::Density, false });
+
+        audioEngine.addSplatProcessor(std::move(splatProcessor));
+    }
 
     addParameter(rotationYaw = new juce::AudioParameterFloat(
         "rotationYaw", "Manifold Yaw",
