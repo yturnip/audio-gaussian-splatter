@@ -7,6 +7,7 @@
 #include <vector>
 #include <memory>
 #include <algorithm>
+#include <juce_audio_basics/juce_audio_basics.h>
 #include "ags/engine/SplatAudioProcessor.h"
 #include "ags/manifold/GaussianManifold.h"
 #include "ags/manifold/ManifoldRotator.h"
@@ -71,7 +72,7 @@ namespace ags::engine
 
             const auto& rotatedSplats = cachedRotatedManifold.splats();
 
-            //jassert(splatProcessors.size() == rotatedSplats.size());
+            jassert(splatProcessors.size() == rotatedSplats.size());
             const size_t count = std::min(splatProcessors.size(), rotatedSplats.size());
 
             float sum = 0.0f;
@@ -84,7 +85,43 @@ namespace ags::engine
             return count > 0 ? sum / static_cast<float>(count) : inputSample;
         }
 
+        void processBlock(const float* inputBuffer, int numSamples,
+                           const ags::manifold::GaussianManifold& manifold,
+                           juce::AudioBuffer<float>& outputBuffer)
+        {
+            updateRotatedManifoldCacheIfNeeded(manifold);
+            const auto& rotatedSplats = cachedRotatedManifold.splats();
+
+            const size_t count = std::min(splatProcessors.size(), rotatedSplats.size());
+            const size_t availableChannels = static_cast<size_t>(outputBuffer.getNumChannels());
+            const size_t channelsToFill = std::min(count, availableChannels);
+
+            scratchBuffer.resize(static_cast<size_t>(numSamples));
+
+            for (size_t i = 0; i < channelsToFill; ++i)
+            {
+                std::copy(inputBuffer, inputBuffer + numSamples, scratchBuffer.begin());
+
+                splatProcessors[i]->updateParametersForBlock(rotatedSplats[i]);
+                splatProcessors[i]->processBlock(scratchBuffer.data(), numSamples, rotatedSplats[i]);
+
+                std::copy(scratchBuffer.begin(), scratchBuffer.end(),
+                           outputBuffer.getWritePointer(static_cast<int>(i)));
+            }
+        }
+
+
     private:
+        void updateRotatedManifoldCacheIfNeeded(const ags::manifold::GaussianManifold& manifold)
+        {
+            if (rotationDirty || cachedManifoldPtr != &manifold)
+            {
+                cachedRotatedManifold = rotator.rotate(manifold, currentRotation);
+                cachedManifoldPtr = &manifold;
+                rotationDirty = false;
+            }
+        }
+
         std::vector<std::unique_ptr<SplatAudioProcessor>> splatProcessors;
         ags::manifold::ManifoldRotator rotator;
         ags::manifold::RotationAngles currentRotation;
@@ -93,6 +130,8 @@ namespace ags::engine
         ags::manifold::GaussianManifold cachedRotatedManifold;
         const ags::manifold::GaussianManifold* cachedManifoldPtr { nullptr };
         bool rotationDirty { true };
+
+        std::vector<float> scratchBuffer;
     };
 }
 #endif //AUDIOGAUSSIANSPLATTER_AUDIOENGINE_H
