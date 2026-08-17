@@ -7,6 +7,15 @@
 
 namespace ags::engine
 {
+    struct EffectParameterDescriptor
+    {
+        int paramId { 0 };
+        std::string name;
+        float minValue { 0.0f };
+        float maxValue { 1.0f };
+        float defaultValue { 0.0f };
+    };
+
     class EffectProcessor
     {
     public:
@@ -23,6 +32,9 @@ namespace ags::engine
             for (int i = 0; i < numSamples; ++i)
                 buffer[i] = processSample(buffer[i]);
         }
+
+        [[nodiscard]] virtual std::string getName() const = 0;
+        [[nodiscard]] virtual std::vector<EffectParameterDescriptor> getParameterDescriptors() const = 0;
     };
 }
 #endif //AUDIOGAUSSIANSPLATTER_EFFECTPROCESSOR_H

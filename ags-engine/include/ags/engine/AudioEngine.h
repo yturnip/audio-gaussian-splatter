@@ -47,6 +47,11 @@ namespace ags::engine
             return splatProcessors.size();
         }
 
+        [[nodiscard]] ags::engine::SplatAudioProcessor& getSplatProcessor(size_t index)
+        {
+            return *splatProcessors[index];
+        }
+
         // Marks the cached rotated manifold dirty rather than rotating
         // immediately. Rotation angles change at parameter/GUI rate, not
         // per-sample, so the actual rotate() call in processSample() below

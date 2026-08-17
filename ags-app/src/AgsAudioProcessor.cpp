@@ -1,6 +1,6 @@
 #include "AgsAudioProcessor.h"
 #include "AgsAudioProcessorEditor.h"
-#include "ags/engine/SpiralDelayProcessor.h"
+#include "ags/engine/EffectRegistry.h"
 #include "ags/params/EffectParameter.h"
 #include "ags/params/GMMBinding.h"
 
@@ -13,37 +13,27 @@ AgsAudioProcessor::AgsAudioProcessor()
     ags::manifold::SphereBranchingGenerator generator;
     manifold = generator.generate(config);
 
-    // STEP 2 TEST: AudioEngine/SplatAudioProcessor registration re-enabled.
-    // One passthrough-only SplatAudioProcessor per splat (no effects, no
-    // parameter slots yet - just the built-in occlusion-gain multiply).
     for (size_t i = 0; i < manifold.size(); ++i)
     {
         auto splatProcessor = std::make_unique<ags::engine::SplatAudioProcessor>();
 
-        const auto delayIndex = splatProcessor->addEffect(
-            std::make_unique<ags::engine::SpiralDelayProcessor>());
+        auto tremoloEffect = ags::engine::EffectRegistry::create("tremolo");
+        const auto descriptors = tremoloEffect->getParameterDescriptors();
+        const auto tremoloIndex = splatProcessor->addEffect(std::move(tremoloEffect));
 
-        // paramId 0: delay time in samples. Fixed default for now.
-        splatProcessor->addParameterSlot(
-            delayIndex,
-            0,
-            std::make_unique<ags::params::EffectParameter>(1.0f, 44100.0f, 8000.0f),
-            ags::params::GMMBinding{ ags::params::GMMAttribute::None, false });
+        for (const auto& descriptor : descriptors)
+        {
+            const auto binding = (descriptor.name == "Depth")
+            ? ags::params::GMMBinding{ ags::params::GMMAttribute::Density, false } :
+            ags::params::GMMBinding{ ags::params::GMMAttribute::None, false };
 
-        // paramId 1: feedback. Fixed default for now.
-        splatProcessor->addParameterSlot(
-            delayIndex,
-            1,
-            std::make_unique<ags::params::EffectParameter>(0.0f, 0.95f, 0.3f),
-            ags::params::GMMBinding{ ags::params::GMMAttribute::None, false });
-
-        // paramId 2: wet mix, GMM-bound to Density - this is the one
-        // parameter actually driven by manifold geometry for this pass.
-        splatProcessor->addParameterSlot(
-            delayIndex,
-            2,
-            std::make_unique<ags::params::EffectParameter>(0.0f, 1.0f, 0.0f),
-            ags::params::GMMBinding{ ags::params::GMMAttribute::Density, false });
+            splatProcessor->addParameterSlot(
+                tremoloIndex,
+                descriptor.paramId,
+                std::make_unique<ags::params::EffectParameter>(
+                    descriptor.minValue, descriptor.maxValue, descriptor.defaultValue),
+                    binding);
+        }
 
         audioEngine.addSplatProcessor(std::move(splatProcessor));
     }
@@ -59,7 +49,6 @@ AgsAudioProcessor::AgsAudioProcessor()
 
 void AgsAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
-    // STEP 2 TEST: AudioEngine setup re-enabled.
     audioEngine.setSampleRate(static_cast<float>(sampleRate));
     audioEngine.reset();
 
@@ -70,9 +59,6 @@ void AgsAudioProcessor::releaseResources() {}
 
 void AgsAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer&)
 {
-    // STEP 2 TEST: AudioEngine now actually processes audio. This is the
-    // first point where the ~1,280-splat per-sample loop runs under a
-    // live host, since Step 1 never touched AudioEngine at all.
     ags::manifold::RotationAngles angles;
     angles.yawRadians = rotationYaw->get();
     angles.pitchRadians = rotationPitch->get();

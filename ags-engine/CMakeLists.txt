@@ -3,7 +3,9 @@ add_library(ags-engine INTERFACE
         include/ags/engine/SpiralDelayProcessor.h
         include/ags/engine/EffectChain.h
         include/ags/engine/SplatAudioProcessor.h
-        include/ags/engine/AudioEngine.h)
+        include/ags/engine/AudioEngine.h
+        include/ags/engine/SpiralTremoloProcessor.h
+        include/ags/engine/EffectRegistry.h)
 
 target_include_directories(ags-engine INTERFACE
         ${CMAKE_CURRENT_SOURCE_DIR}/include
