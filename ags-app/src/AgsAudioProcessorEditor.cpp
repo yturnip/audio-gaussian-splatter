@@ -1,13 +1,19 @@
 #include "AgsAudioProcessorEditor.h"
 
+#include "ags/engine/EffectRegistry.h"
+
 AgsAudioProcessorEditor::AgsAudioProcessorEditor(AgsAudioProcessor& p)
-    : AudioProcessorEditor(&p), processorRef(p)
+    :   AudioProcessorEditor(&p),
+        processorRef(p),
+        tremoloPanel(p.getSplatProcessor(0), 0,
+           ags::engine::EffectRegistry::create("tremolo")->getParameterDescriptors())
 {
     setSize(847, 733);
 
     addAndMakeVisible(manifoldViewport);
     addAndMakeVisible(rotationPad);
     rotationPad.addListener(this);
+    addAndMakeVisible(tremoloPanel);
 
     openGLContext.setOpenGLVersionRequired(juce::OpenGLContext::openGL3_2);
     openGLContext.setContinuousRepainting(true);
@@ -48,7 +54,8 @@ void AgsAudioProcessorEditor::resized()
     const int halfHeight = bounds.getHeight() / 2;
 
     auto topRow = bounds.removeFromTop(halfHeight);
-    topRow.removeFromLeft(halfWidth); // reserved for future effects chain panel
+    auto effectsArea = topRow.removeFromLeft(halfWidth);
+    tremoloPanel.setBounds(effectsArea.reduced(8));
     manifoldViewport.setBounds(topRow.reduced(8));
 
     auto bottomRow = bounds;

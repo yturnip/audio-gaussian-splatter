@@ -25,6 +25,8 @@ target_sources(ags-app
         src/gui/ManifoldViewport.h
         src/gui/RotationPad.h
         src/gui/RotationPad.cpp
+        src/gui/EffectEditorPanel.h
+        src/gui/EffectEditorPanel.cpp
 )
 
 target_compile_features(ags-app PUBLIC cxx_std_17)

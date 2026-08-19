@@ -6,9 +6,11 @@
 #include "gui/ManifoldRenderer.h"
 #include "gui/ManifoldViewport.h"
 #include "gui/RotationPad.h"
+#include "gui/EffectEditorPanel.h"
 
-class AgsAudioProcessorEditor final : public juce::AudioProcessorEditor,
-private ags::app::RotationPad::Listener
+class AgsAudioProcessorEditor final :
+    public juce::AudioProcessorEditor,
+    private ags::app::RotationPad::Listener
 {
 public:
     explicit AgsAudioProcessorEditor(AgsAudioProcessor& p);
@@ -28,6 +30,8 @@ private:
     ags::app::ManifoldRenderer manifoldRenderer;
 
     ags::app::RotationPad rotationPad;
+
+    ags::app::EffectEditorPanel tremoloPanel;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AgsAudioProcessorEditor)
 };

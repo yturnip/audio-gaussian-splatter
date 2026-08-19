@@ -5,7 +5,7 @@
 #ifndef AUDIOGAUSSIANSPLATTER_SPIRALDELAYPROCESSOR_H
 #define AUDIOGAUSSIANSPLATTER_SPIRALDELAYPROCESSOR_H
 
-#include "EffectProcessor.h"
+#include "ags/engine/EffectProcessor.h"
 #include "spiral/SpiralDelay.h"
 
 namespace ags::engine
@@ -44,6 +44,18 @@ namespace ags::engine
         {
             return delay.processSample(inputSample);
         }
+
+        [[nodiscard]] std::string getName() const override { return "Delay"; }
+
+        [[nodiscard]] std::vector<EffectParameterDescriptor> getParameterDescriptors() const override
+        {
+            return {
+                    { 0, "Delay Time", 1.0f, 44100.0f, 8000.0f },
+                    { 1, "Feedback", 0.0f, 0.95f, 0.3f },
+                    { 2, "Wet Mix", 0.0f, 1.0f, 0.0f }
+            };
+        }
+
     private:
         SpiralDelay delay;
         float sampleRate { 44100.0f };

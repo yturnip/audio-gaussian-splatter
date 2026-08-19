@@ -6,11 +6,6 @@
 #include "ags/manifold/Generators/SphereBranchingGenerator.h"
 #include "ags/manifold/Generators/DomeBranchingGenerator.h"
 #include "ags/manifold/Generators/GeneratorConfig.h"
-// STEP 2 TEST: AudioEngine re-enabled. GUI/renderer still disabled
-// (see AgsAudioProcessorEditor) so this isolates AudioEngine/
-// SplatAudioProcessor as the only new variable versus the Step 1
-// baseline, which was confirmed working (audible passthrough, node
-// add/connect did not silence other nodes).
 #include "ags/engine/AudioEngine.h"
 
 class AgsAudioProcessor : public juce::AudioProcessor
@@ -58,12 +53,16 @@ public:
         return rotator.rotate(manifold, angles);
     }
 
+    [[nodiscard]] ags::engine::SplatAudioProcessor& getSplatProcessor(size_t index)
+    {
+        return audioEngine.getSplatProcessor(index);
+    }
+
     juce::AudioParameterFloat* rotationYaw { nullptr };
     juce::AudioParameterFloat* rotationPitch { nullptr };
 
 private:
     ags::manifold::GaussianManifold manifold;
-    // STEP 2 TEST: AudioEngine member re-enabled.
     ags::engine::AudioEngine audioEngine;
 
     juce::AudioBuffer<float> perSplatBuffer;
