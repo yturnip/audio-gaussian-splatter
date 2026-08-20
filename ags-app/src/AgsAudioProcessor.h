@@ -7,6 +7,7 @@
 #include "ags/manifold/Generators/DomeBranchingGenerator.h"
 #include "ags/manifold/Generators/GeneratorConfig.h"
 #include "ags/engine/AudioEngine.h"
+#include "ags/params/GMMBinding.h"
 
 class AgsAudioProcessor : public juce::AudioProcessor
 {
@@ -57,6 +58,8 @@ public:
     {
         return audioEngine.getSplatProcessor(index);
     }
+
+    [[nodiscard]] ags::engine::AudioEngine& getAudioEngine() { return audioEngine; }
 
     juce::AudioParameterFloat* rotationYaw { nullptr };
     juce::AudioParameterFloat* rotationPitch { nullptr };

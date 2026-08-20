@@ -5,7 +5,7 @@
 AgsAudioProcessorEditor::AgsAudioProcessorEditor(AgsAudioProcessor& p)
     :   AudioProcessorEditor(&p),
         processorRef(p),
-        tremoloPanel(p.getSplatProcessor(0), 0,
+        tremoloPanel(p.getAudioEngine(), p.getSplatProcessor(0), 0,
            ags::engine::EffectRegistry::create("tremolo")->getParameterDescriptors())
 {
     setSize(847, 733);

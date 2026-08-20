@@ -38,10 +38,12 @@ int EffectEditorPanel::attributeToComboIndex(ags::params::GMMAttribute attribute
     }
 }
 
-EffectEditorPanel::EffectEditorPanel(ags::engine::SplatAudioProcessor& splatProcessor,
-                                      size_t effectIndex,
-                                      std::vector<ags::engine::EffectParameterDescriptor> descriptors)
-    : processor(splatProcessor),
+    EffectEditorPanel::EffectEditorPanel(ags::engine::AudioEngine& engine,
+                            ags::engine::SplatAudioProcessor& representativeSplat,
+                            size_t effectIndex,
+                            std::vector<ags::engine::EffectParameterDescriptor> descriptors)
+    : audioEngine(engine),
+      displayProcessor(representativeSplat),
       effectIdx(effectIndex),
       paramDescriptors(std::move(descriptors))
 {
@@ -52,11 +54,14 @@ EffectEditorPanel::EffectEditorPanel(ags::engine::SplatAudioProcessor& splatProc
 
         row->nameLabel.setText(descriptor.name, juce::dontSendNotification);
         row->nameLabel.setJustificationType(juce::Justification::left);
+        row->nameLabel.setColour(juce::Label::textColourId, juce::Colours::black);
         addAndMakeVisible(row->nameLabel);
 
-        row->valueSlider.setRange(descriptor.minValue, descriptor.maxValue);
+        row->valueSlider.setRange(descriptor.minValue, descriptor.maxValue,
+            descriptor.stepSize > 0.0f ? descriptor.stepSize : 0.0);
         row->valueSlider.setSliderStyle(juce::Slider::LinearHorizontal);
         row->valueSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 50, rowHeight);
+        row->valueSlider.setColour(juce::Slider::textBoxTextColourId, juce::Colours::black);
         row->valueSlider.addListener(this);
         addAndMakeVisible(row->valueSlider);
 
@@ -82,7 +87,7 @@ EffectEditorPanel::~EffectEditorPanel()
 
 void EffectEditorPanel::refreshRowFromState(ParamRow& row)
 {
-    const auto view = processor.getParameterSlotView(effectIdx, row.descriptor.paramId);
+    const auto view = displayProcessor.getParameterSlotView(effectIdx, row.descriptor.paramId);
     const bool isBound = view.binding.isActive();
 
     row.bindingCombo.setSelectedItemIndex(attributeToComboIndex(view.binding.attribute),
@@ -102,7 +107,7 @@ void EffectEditorPanel::sliderValueChanged(juce::Slider* slider)
 
         // Only reachable while unbound -- the slider is disabled while
         // bound, so JUCE won't fire this from user interaction in that case.
-        processor.setParameterValue(effectIdx, row->descriptor.paramId,
+        audioEngine.setParameterValueForAll(effectIdx, row->descriptor.paramId,
                                      static_cast<float>(slider->getValue()));
         return;
     }
@@ -116,7 +121,7 @@ void EffectEditorPanel::comboBoxChanged(juce::ComboBox* comboBox)
             continue;
 
         const auto attribute = comboIndexToAttribute(comboBox->getSelectedItemIndex());
-        processor.setParameterBinding(effectIdx, row->descriptor.paramId,
+        audioEngine.setParameterBindingForAll(effectIdx, row->descriptor.paramId,
                                        ags::params::GMMBinding{ attribute, false });
 
         refreshRowFromState(*row);

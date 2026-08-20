@@ -55,9 +55,9 @@ namespace ags::engine
         [[nodiscard]] std::vector<EffectParameterDescriptor> getParameterDescriptors() const override
         {
             return {
-                    { 0, "Rate", 0.1f, 20.0f, 5.0f },
-                    { 1, "Depth", 0.0f, 1.0f, 0.0f },
-                    { 2, "Waveform", 0.0f, 3.0f, 0.0f }
+                    { 0, "Rate", 0.1f, 20.0f, 5.0f, 0.0f },
+                    { 1, "Depth", 0.0f, 1.0f, 0.0f, 0.0f },
+                    { 2, "Waveform", 0.0f, 3.0f, 0.0f, 1.0f }
             };
         }
 
