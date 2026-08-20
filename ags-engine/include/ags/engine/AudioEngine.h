@@ -7,7 +7,7 @@
 #include <vector>
 #include <memory>
 #include <algorithm>
-#include <juce_audio_basics/juce_audio_basics.h>
+#include <juce_audio_processors//juce_audio_processors.h>
 #include "ags/engine/SplatAudioProcessor.h"
 #include "ags/manifold/GaussianManifold.h"
 #include "ags/manifold/ManifoldRotator.h"
@@ -52,6 +52,19 @@ namespace ags::engine
             return *splatProcessors[index];
         }
 
+        void setParameterValueForAll(size_t effectIndex, int paramIndex, float value)
+        {
+            for (auto& processor : splatProcessors)
+                processor->setParameterValue(effectIndex, paramIndex, value);
+        }
+
+        void setParameterBindingForAll(size_t effectIndex, int paramIndex,
+            const ags::params::GMMBinding binding)
+        {
+            for (auto& processor : splatProcessors)
+                processor->setParameterBinding(effectIndex, paramIndex, binding);
+        }
+
         // Marks the cached rotated manifold dirty rather than rotating
         // immediately. Rotation angles change at parameter/GUI rate, not
         // per-sample, so the actual rotate() call in processSample() below
@@ -68,12 +81,7 @@ namespace ags::engine
         // (angles, manifold) pair via the cache below, not once per call.
         float processSample(float inputSample, const ags::manifold::GaussianManifold& manifold)
         {
-            if (rotationDirty || cachedManifoldPtr != &manifold)
-            {
-                cachedRotatedManifold = rotator.rotate(manifold, currentRotation);
-                cachedManifoldPtr = &manifold;
-                rotationDirty = false;
-            }
+            updateRotatedManifoldCacheIfNeeded(manifold);
 
             const auto& rotatedSplats = cachedRotatedManifold.splats();
 

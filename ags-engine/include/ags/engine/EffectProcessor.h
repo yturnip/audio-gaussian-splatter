@@ -14,6 +14,8 @@ namespace ags::engine
         float minValue { 0.0f };
         float maxValue { 1.0f };
         float defaultValue { 0.0f };
+
+        float stepSize { 0.0f };
     };
 
     class EffectProcessor
