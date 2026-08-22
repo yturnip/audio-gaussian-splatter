@@ -65,6 +65,53 @@ namespace ags::engine
                 processor->setParameterBinding(effectIndex, paramIndex, binding);
         }
 
+        template <typename EffectFactory>
+        size_t addEffectForAll(EffectFactory&& effectFactory)
+        {
+            size_t addedIndex = 0;
+            bool first = true;
+            for (auto& processor : splatProcessors)
+            {
+                auto effect = effectFactory();
+                const auto descriptors = effect->getParameterDescriptors();
+                const auto index = processor->addEffect(std::move(effect));
+
+                for (const auto& descriptor : descriptors)
+                {
+                    processor->addParameterSlot(
+                        index, descriptor.paramId,
+                        std::make_unique<ags::params::EffectParameter>(
+                            descriptor.minValue, descriptor.maxValue, descriptor.defaultValue),
+                            ags::params::GMMBinding {ags::params::GMMAttribute::None, false });
+                }
+                if (first)
+                {
+                    addedIndex = index;
+                    first = false;
+                }
+                jassert(index == addedIndex);
+            }
+            return addedIndex;
+        }
+
+        void removeEffectForAll(size_t effectIndex)
+        {
+            for (auto& processor : splatProcessors)
+                processor->removeEffect(effectIndex);
+        }
+
+        void moveEffectForAll(size_t fromIndex, size_t newIndex)
+        {
+            for (auto& processor : splatProcessors)
+                processor->moveEffect(fromIndex, newIndex);
+        }
+
+        void setBypassedForAll(size_t effectIndex, bool shouldBypassed)
+        {
+            for (auto& processor : splatProcessors)
+                processor->setBypassed(effectIndex, shouldBypassed);
+        }
+
         // Marks the cached rotated manifold dirty rather than rotating
         // immediately. Rotation angles change at parameter/GUI rate, not
         // per-sample, so the actual rotate() call in processSample() below

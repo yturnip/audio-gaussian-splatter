@@ -71,6 +71,12 @@ namespace ags::engine
             return slots.size();
         }
 
+        [[nodiscard]] const EffectProcessor& getEffect(size_t index) const
+        {
+            jassert(index < slots.size());
+            return *slots[index].processor;
+        }
+
         float processSample(float inputSample)
         {
             float sample = inputSample;

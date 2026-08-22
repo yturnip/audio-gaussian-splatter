@@ -31,6 +31,7 @@ namespace ags::engine
     struct EffectRegistryEntry
     {
         std::string id;
+        std::string displayName;
         std::function<std::unique_ptr<EffectProcessor>()> create;
     };
 
@@ -43,8 +44,8 @@ namespace ags::engine
         static const std::vector<EffectRegistryEntry>& all()
         {
             static const std::vector<EffectRegistryEntry> entries = {
-                { "delay",   [] { return std::make_unique<SpiralDelayProcessor>(); } },
-                { "tremolo", [] { return std::make_unique<SpiralTremoloProcessor>(); } },
+                { "delay", "Delay",  [] { return std::make_unique<SpiralDelayProcessor>(); } },
+                { "tremolo", "Tremolo", [] { return std::make_unique<SpiralTremoloProcessor>(); } },
             };
             return entries;
         }
