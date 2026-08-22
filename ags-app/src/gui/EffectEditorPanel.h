@@ -56,7 +56,7 @@ namespace ags::app
         juce::OwnedArray<ParamRow> rows;
 
         static constexpr int rowHeight = 28;
-        static constexpr int comboWidth = 90;
+        static constexpr int comboWidth = 70;
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EffectEditorPanel)
     };

@@ -5,15 +5,14 @@
 AgsAudioProcessorEditor::AgsAudioProcessorEditor(AgsAudioProcessor& p)
     :   AudioProcessorEditor(&p),
         processorRef(p),
-        tremoloPanel(p.getAudioEngine(), p.getSplatProcessor(0), 0,
-           ags::engine::EffectRegistry::create("tremolo")->getParameterDescriptors())
+        effectChainPanel(p.getAudioEngine(), p.getSplatProcessor(0))
 {
     setSize(847, 733);
 
     addAndMakeVisible(manifoldViewport);
     addAndMakeVisible(rotationPad);
     rotationPad.addListener(this);
-    addAndMakeVisible(tremoloPanel);
+    addAndMakeVisible(effectChainPanel);
 
     openGLContext.setOpenGLVersionRequired(juce::OpenGLContext::openGL3_2);
     openGLContext.setContinuousRepainting(true);
@@ -55,7 +54,7 @@ void AgsAudioProcessorEditor::resized()
 
     auto topRow = bounds.removeFromTop(halfHeight);
     auto effectsArea = topRow.removeFromLeft(halfWidth);
-    tremoloPanel.setBounds(effectsArea.reduced(8));
+    effectChainPanel.setBounds(effectsArea.reduced(8));
     manifoldViewport.setBounds(topRow.reduced(8));
 
     auto bottomRow = bounds;

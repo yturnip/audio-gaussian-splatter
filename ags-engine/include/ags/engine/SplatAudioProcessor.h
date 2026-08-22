@@ -6,6 +6,8 @@
 #define AUDIOGAUSSIANSPLATTER_SPLATAUDIOPROCESSOR_H
 
 #include <vector>
+#include <memory>
+#include <algorithm>
 #include "ags/engine/EffectChain.h"
 #include "ags/params/EffectParameter.h"
 #include "ags/params/GMMBinding.h"
@@ -18,9 +20,17 @@ namespace ags::engine
     class SplatAudioProcessor
     {
     public:
-        void setSampleRate(float sampleRate) { chain.setSampleRate(sampleRate); }
+        void setSampleRate(float sampleRate)
+        {
+            const juce::ScopedLock lock(structureLock);
+            chain.setSampleRate(sampleRate);
+        }
 
-        void reset() { chain.reset(); }
+        void reset()
+        {
+            const juce::ScopedLock lock(structureLock);
+            chain.reset();
+        }
 
         // Registers one parameter slot with its GMM Binding
         // paramIndex refers to the effect's own parameter ID inside the chain
@@ -29,6 +39,7 @@ namespace ags::engine
                                 std::unique_ptr<ags::params::EffectParameter> parameter,
                                 ags::params::GMMBinding binding)
         {
+            const juce::ScopedLock lock(structureLock);
             slots.push_back(ParamSlot {
                 effectIndex,
                 paramIndex,
@@ -39,7 +50,70 @@ namespace ags::engine
 
         size_t addEffect(std::unique_ptr<EffectProcessor> effect)
         {
+            const juce::ScopedLock lock(structureLock);
             return chain.addEffect(std::move(effect));
+        }
+
+        void removeEffect(size_t effectIndex)
+        {
+            const juce::ScopedLock lock(structureLock);
+            chain.removeEffect(effectIndex);
+
+            slots.erase(std::remove_if(slots.begin(), slots.end(), [effectIndex](const ParamSlot& s)
+                { return s.effectIndex == effectIndex; }), slots.end());
+
+            for (auto& slot : slots)
+            {
+                if (slot.effectIndex > effectIndex)
+                    --slot.effectIndex;
+            }
+        }
+
+        void moveEffect(size_t fromIndex, size_t toIndex)
+        {
+            if (fromIndex == toIndex)
+                return;
+            const juce::ScopedLock lock(structureLock);
+
+            chain.moveEffect(fromIndex, toIndex);
+
+            for (auto& slot : slots)
+            {
+                if (slot.effectIndex == fromIndex)
+                    slot.effectIndex = toIndex;
+                else if (slot.effectIndex == toIndex)
+                    slot.effectIndex = fromIndex;
+            }
+        }
+
+        void setBypassed(size_t effectIndex, bool shouldBypass)
+        {
+            const juce::ScopedLock lock(structureLock);
+            chain.setBypassed(effectIndex, shouldBypass);
+        }
+
+        [[nodiscard]] bool isEffectBypassed(size_t effectIndex) const
+        {
+            const juce::ScopedLock lock(structureLock);
+            return chain.isBypassed(effectIndex);
+        }
+
+        [[nodiscard]] size_t getEffectCount() const
+        {
+            const juce::ScopedLock lock(structureLock);
+            return chain.size();
+        }
+
+        [[nodiscard]] std::string getEffectName(size_t effectIndex) const
+        {
+            const juce::ScopedLock lock(structureLock);
+            return chain.getEffect(effectIndex).getName();
+        }
+
+        [[nodiscard]] std::vector<EffectParameterDescriptor> getEffectDescriptors(size_t effectIndex) const
+        {
+            const juce::ScopedLock lock(structureLock);
+            return chain.getEffect(effectIndex).getParameterDescriptors();
         }
 
         struct ParamSlotView
@@ -56,6 +130,7 @@ namespace ags::engine
         // stays correct regardless of how many effects are chained.
         [[nodiscard]] ParamSlotView getParameterSlotView(size_t effectIndex, int paramIndex) const
         {
+            const juce::ScopedLock lock(structureLock);
             const auto it = findSlot(effectIndex, paramIndex);
             jassert(it != slots.end());
             return ParamSlotView{
@@ -73,6 +148,7 @@ namespace ags::engine
         // updateParametersForBlock call after this picks up the new binding.
         void setParameterBinding(size_t effectIndex, int paramIndex, ags::params::GMMBinding newBinding)
         {
+            const juce::ScopedLock lock(structureLock);
             const auto it = findSlot(effectIndex, paramIndex);
             jassert(it != slots.end());
             it->binding = newBinding;
@@ -84,6 +160,7 @@ namespace ags::engine
         // regardless.
         void setParameterValue(size_t effectIndex, int paramIndex, float value)
         {
+            const juce::ScopedLock lock(structureLock);
             const auto it = findSlot(effectIndex, paramIndex);
             jassert(it != slots.end());
             it->parameter->setManualValue(value);
@@ -94,6 +171,7 @@ namespace ags::engine
         // ParameterMapper, and pushes the resulting values into the chain.
         void updateParametersForBlock(const ags::manifold::GaussianSplat& splat)
         {
+            const juce::ScopedLock lock(structureLock);
             for (auto& slot : slots)
             {
                 mapper.apply(*slot.parameter, slot.binding, splat);
@@ -104,6 +182,7 @@ namespace ags::engine
         // Processes one sample through the chain and applies occlusion gain
         float processSample(float inputSample, const::ags::manifold::GaussianSplat& rotatedSplat)
         {
+            const juce::ScopedLock lock(structureLock);
             const float wet = chain.processSample(inputSample);
             const float gain = ags::params::SplatOcclusion::compute(rotatedSplat);
             return wet * gain;
@@ -111,6 +190,7 @@ namespace ags::engine
 
         void processBlock(float* buffer, int numSamples, const ags::manifold::GaussianSplat& rotatedSplat)
         {
+            const juce::ScopedLock lock(structureLock);
             chain.processBlock(buffer, numSamples);
 
             const float gain = ags::params::SplatOcclusion::compute(rotatedSplat);
@@ -141,6 +221,7 @@ namespace ags::engine
             });
         }
 
+        mutable juce::CriticalSection structureLock;
         EffectChain chain;
         ags::params::ParameterMapper mapper;
         std::vector<ParamSlot> slots;

@@ -27,6 +27,8 @@ target_sources(ags-app
         src/gui/RotationPad.cpp
         src/gui/EffectEditorPanel.h
         src/gui/EffectEditorPanel.cpp
+        src/gui/EffectChainPanel.h
+        src/gui/EffectChainPanel.cpp
 )
 
 target_compile_features(ags-app PUBLIC cxx_std_17)
