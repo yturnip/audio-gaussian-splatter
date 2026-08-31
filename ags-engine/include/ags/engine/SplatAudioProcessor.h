@@ -1,5 +1,5 @@
 //
-// Created by Yohanes Turnip on 2026-07-30.
+// Created by Yohanes Turnip on 2026-07-25.
 //
 
 #ifndef AUDIOGAUSSIANSPLATTER_SPLATAUDIOPROCESSOR_H
@@ -22,24 +22,21 @@ namespace ags::engine
     public:
         void setSampleRate(float sampleRate)
         {
-            const juce::ScopedLock lock(structureLock);
+            const ScopedStructuralEdit edit(*this);
             chain.setSampleRate(sampleRate);
         }
 
         void reset()
         {
-            const juce::ScopedLock lock(structureLock);
+            const ScopedStructuralEdit edit(*this);
             chain.reset();
         }
 
-        // Registers one parameter slot with its GMM Binding
-        // paramIndex refers to the effect's own parameter ID inside the chain
-        void addParameterSlot(size_t effectIndex,
-                                int paramIndex,
+        void addParameterSlot(size_t effectIndex, int paramIndex,
                                 std::unique_ptr<ags::params::EffectParameter> parameter,
                                 ags::params::GMMBinding binding)
         {
-            const juce::ScopedLock lock(structureLock);
+            const ScopedStructuralEdit edit(*this);
             slots.push_back(ParamSlot {
                 effectIndex,
                 paramIndex,
@@ -50,13 +47,13 @@ namespace ags::engine
 
         size_t addEffect(std::unique_ptr<EffectProcessor> effect)
         {
-            const juce::ScopedLock lock(structureLock);
+            const ScopedStructuralEdit edit(*this);
             return chain.addEffect(std::move(effect));
         }
 
         void removeEffect(size_t effectIndex)
         {
-            const juce::ScopedLock lock(structureLock);
+            const ScopedStructuralEdit edit(*this);
             chain.removeEffect(effectIndex);
 
             slots.erase(std::remove_if(slots.begin(), slots.end(), [effectIndex](const ParamSlot& s)
@@ -73,7 +70,7 @@ namespace ags::engine
         {
             if (fromIndex == toIndex)
                 return;
-            const juce::ScopedLock lock(structureLock);
+            const ScopedStructuralEdit edit(*this);
 
             chain.moveEffect(fromIndex, toIndex);
 
@@ -88,7 +85,7 @@ namespace ags::engine
 
         void setBypassed(size_t effectIndex, bool shouldBypass)
         {
-            const juce::ScopedLock lock(structureLock);
+            const ScopedStructuralEdit edit(*this);
             chain.setBypassed(effectIndex, shouldBypass);
         }
 
@@ -126,8 +123,6 @@ namespace ags::engine
             ags::params::GMMBinding binding;
         };
 
-        // Looked up by (effectIndex, paramIndex) identity, not flat position --
-        // stays correct regardless of how many effects are chained.
         [[nodiscard]] ParamSlotView getParameterSlotView(size_t effectIndex, int paramIndex) const
         {
             const juce::ScopedLock lock(structureLock);
@@ -140,38 +135,29 @@ namespace ags::engine
             };
         }
 
-        // Changes which GMM attribute (or None) drives this parameter. Does not
-        // touch EffectParameter directly -- ParameterMapper::apply already
-        // reconciles EffectParameter's internal gmmBound flag against
-        // ParamSlot::binding every block (calling clearGMMBinding() when
-        // !binding.isActive(), setGMMDrivenValue() otherwise), so the very next
-        // updateParametersForBlock call after this picks up the new binding.
         void setParameterBinding(size_t effectIndex, int paramIndex, ags::params::GMMBinding newBinding)
         {
-            const juce::ScopedLock lock(structureLock);
+            const ScopedStructuralEdit edit(*this);
             const auto it = findSlot(effectIndex, paramIndex);
             jassert(it != slots.end());
             it->binding = newBinding;
         }
 
-        // Directly sets a parameter's manual value. Only meaningful while the
-        // slot is unbound -- if a GMM attribute is bound, the next
-        // updateParametersForBlock call overwrites this via setGMMDrivenValue
-        // regardless.
         void setParameterValue(size_t effectIndex, int paramIndex, float value)
         {
-            const juce::ScopedLock lock(structureLock);
+            const ScopedStructuralEdit edit(*this);
             const auto it = findSlot(effectIndex, paramIndex);
             jassert(it != slots.end());
             it->parameter->setManualValue(value);
             chain.setParameter(it->effectIndex, it->paramIndex, it->parameter->getValue());
         }
 
-        // Reads the splat's current GMM attributes, maps them through
-        // ParameterMapper, and pushes the resulting values into the chain.
         void updateParametersForBlock(const ags::manifold::GaussianSplat& splat)
         {
-            const juce::ScopedLock lock(structureLock);
+            const juce::SpinLock::ScopedTryLockType lock(audioLock);
+            if (!lock.isLocked())
+                return;
+
             for (auto& slot : slots)
             {
                 mapper.apply(*slot.parameter, slot.binding, splat);
@@ -179,10 +165,12 @@ namespace ags::engine
             }
         }
 
-        // Processes one sample through the chain and applies occlusion gain
-        float processSample(float inputSample, const::ags::manifold::GaussianSplat& rotatedSplat)
+        float processSample(float inputSample, const ags::manifold::GaussianSplat& rotatedSplat)
         {
-            const juce::ScopedLock lock(structureLock);
+            const juce::SpinLock::ScopedTryLockType lock(audioLock);
+            if (!lock.isLocked())
+                return inputSample;
+
             const float wet = chain.processSample(inputSample);
             const float gain = ags::params::SplatOcclusion::compute(rotatedSplat);
             return wet * gain;
@@ -190,7 +178,10 @@ namespace ags::engine
 
         void processBlock(float* buffer, int numSamples, const ags::manifold::GaussianSplat& rotatedSplat)
         {
-            const juce::ScopedLock lock(structureLock);
+            const juce::SpinLock::ScopedTryLockType lock(audioLock);
+            if (!lock.isLocked())
+                return; // buffer left as-is: passthrough for this block only
+
             chain.processBlock(buffer, numSamples);
 
             const float gain = ags::params::SplatOcclusion::compute(rotatedSplat);
@@ -221,11 +212,24 @@ namespace ags::engine
             });
         }
 
+        struct ScopedStructuralEdit
+        {
+            explicit ScopedStructuralEdit(SplatAudioProcessor& owner)
+                : audioScopedLock(owner.audioLock),
+                  structureScopedLock(owner.structureLock)
+            {}
+
+            juce::SpinLock::ScopedLockType audioScopedLock;
+            juce::ScopedLock structureScopedLock;
+        };
+
+        juce::SpinLock audioLock;
+
         mutable juce::CriticalSection structureLock;
+
         EffectChain chain;
         ags::params::ParameterMapper mapper;
         std::vector<ParamSlot> slots;
     };
 }
-
 #endif //AUDIOGAUSSIANSPLATTER_SPLATAUDIOPROCESSOR_H
