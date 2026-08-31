@@ -11,6 +11,7 @@
 #pragma once
 #include <vector>
 #include <cmath>
+#include <juce_dsp/juce_dsp.h>
 
 class SpiralPhaseVocoder
 {

@@ -10,6 +10,7 @@
 #pragma once
 #include <vector>
 #include <cmath>
+#include <spiral/SpiralBiquad.h>
 
 class SpiralWahWah
 {

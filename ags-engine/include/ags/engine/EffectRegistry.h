@@ -25,6 +25,14 @@
 #include "ags/engine/EffectProcessor.h"
 #include "ags/engine/SpiralDelayProcessor.h"
 #include "ags/engine/SpiralTremoloProcessor.h"
+#include "ags/engine/SpiralWahWahProcessor.h"
+#include "ags/engine/SpiralRingModProcessor.h"
+#include "ags/engine/SpiralFlangerProcessor.h"
+#include "ags/engine/SpiralVibratoProcessor.h"
+#include "ags/engine/SpiralDistortionProcessor.h"
+#include "ags/engine/SpiralCompressorProcessor.h"
+#include "ags/engine/SpiralExpanderGateProcessor.h"
+#include "ags/engine/SpiralPhaseVocoderProcessor.h"
 
 namespace ags::engine
 {
@@ -46,6 +54,16 @@ namespace ags::engine
             static const std::vector<EffectRegistryEntry> entries = {
                 { "delay", "Delay",  [] { return std::make_unique<SpiralDelayProcessor>(); } },
                 { "tremolo", "Tremolo", [] { return std::make_unique<SpiralTremoloProcessor>(); } },
+                { "wahwah",      "Wah-Wah",       [] { return std::make_unique<SpiralWahWahProcessor>(); } },
+                { "ringmod",     "Ring Mod",      [] { return std::make_unique<SpiralRingModProcessor>(); } },
+                { "flanger",     "Flanger",       [] { return std::make_unique<SpiralFlangerProcessor>(); } },
+                { "vibrato",     "Vibrato",       [] { return std::make_unique<SpiralVibratoProcessor>(); } },
+                { "distortion",  "Distortion",    [] { return std::make_unique<SpiralDistortionProcessor>(); } },
+                { "compressor",  "Compressor",    [] { return std::make_unique<SpiralCompressorProcessor>(); } },
+                { "expandergate","Expander/Gate", [] { return std::make_unique<SpiralExpanderGateProcessor>(); } },
+                { "robotvocoder",   "Robot Vocoder",   [] { return std::make_unique<SpiralRobotVocoderProcessor>(); } },
+                { "whispervocoder", "Whisper Vocoder", [] { return std::make_unique<SpiralWhisperVocoderProcessor>(); } },
+                { "pitchshifter",   "Pitch Shifter",   [] { return std::make_unique<SpiralPitchShifterVocoderProcessor>(); } },
             };
             return entries;
         }

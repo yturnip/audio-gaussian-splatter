@@ -11,7 +11,7 @@
 
 #pragma once
 #include <vector>
-#include <JuceHeader.h>
+#include <juce_core/juce_core.h>
 
 class SpiralBiquad
 {

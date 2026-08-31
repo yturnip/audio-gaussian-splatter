@@ -11,8 +11,8 @@ namespace ags::manifold
     struct GeneratorConfig
     {
         int numHubs { 64 };
-        int pointsPerHub { 20 };
-        float spread { 0.1f };
+        int pointsPerHub { 10 };
+        float spread { 0.4f };
         std::uint32_t seed { 0 };
     };
 }
